@@ -12,8 +12,7 @@ function TableHeader(){
 }
 
 const TableBody = (props) => {
-    // boilerplate table body functional component
-    // we use Array.map to create table rows from LinkData passed via props
+  
     const rows = props.linkData.map((row, index) => {
       return (
         <tr key={index}>

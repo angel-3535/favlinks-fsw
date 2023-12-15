@@ -14,13 +14,23 @@ export default function Form(props){
     }
 
     const submitForm = (e) => {
-        e.preventDefault();
+        e.preventDefault()
         const newLinkData = {name:name, url:url}
-        props.onNewData(newLinkData);
-
-
-        clearForm();
-    }
+        fetch('/api/links', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newLinkData),
+        })
+        .then(response => response.json())
+        .then(addedLink => {
+            props.onNewData(addedLink)
+            setName("")
+            setUrl("")
+        })
+        .catch(error => console.error('Error adding link: ', error))
+        }
 
     function clearForm(){
         setName("")

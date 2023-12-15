@@ -11,27 +11,42 @@ export default function LinkContainer(){
     const[linkData, setLinkData] = useState([])
 
     useEffect(()=>{
-        const storedData = JSON.parse(localStorage.getItem("linkData"))
-        if(storedData){
-            setLinkData(storedData)
-        }
+        fetch('api/links').then(response => response.json()).then(data => setLinkData(data)).catch(error => console.error('Error fetching data: ', error))
     },[])
 
     const handleRemove = (index) => {
        
         const updatedLinkData = [...linkData]
+        const removedLink = updatedLinkData.splice(index, 1)[0]
 
-        updatedLinkData.splice(index, 1)
-        setLinkData(updatedLinkData)
-        localStorage.setItem("linkData", JSON.stringify(updatedLinkData))
+        fetch(`/api/links/${removedLink.id}`, {
+            method: 'DELETE',
+        }).then(response => {
+            if(response.ok){
+                localStorage.setItem("linkData", JSON.stringify(updatedLinkData))
+                setLinkData(updatedLinkData)
+            }else{
+                throw new Error('Failed to delete link')
+            }
+        }).catch(error => console.error('Eroor deleting link:', error))
       }
     
       const handleSubmit = (newData) => {
 
-        const newLinkData = [...linkData, newData]
-        setLinkData(newLinkData)
-        localStorage.setItem("linkData", JSON.stringify(newLinkData))
-
+        fetch('/api/links', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newData)
+        })
+        .then(response => response.json())
+        .then(addedLink => {
+            const newLinkData = [...linkData, addedLink]
+            localStorage.setItem("linkData", JSON.stringify(newLinkData))
+            setLinkData(newLinkData)
+        })
+        .catch(error => console.error('Error adding link:', error))
       }
 
     return(
